@@ -16,6 +16,7 @@ import pathlib
 import logging
 import os
 import tqdm
+import json
 
 dir = os.getcwd()
 
@@ -85,8 +86,6 @@ if __name__ == '__main__':
     # Define which transect based on average location
     def find_area(ds):
         area = []
-        print(ds.lon.mean())
-        print(ds.lat.mean())
         if ds.lon.mean() < 14:
             area = 'SAMBA_01'
         if ds.lat.mean() < 56:
@@ -100,32 +99,10 @@ if __name__ == '__main__':
             area = 'SAMBA_05'
         return area
 
-    mission_WP = {
-        'SAMBA_01': {
-            'names': ['K11', 'K6', 'K14', 'K13_7500', 'K11'],
-            'lon': [11.3301, 11.0436, 10.8630, 11.1833, 11.3301],
-            'lat': [57.8032, 58.1167, 58.1038, 57.7939, 57.8032]},
-        'SAMBA_02': {
-            'names': ['B2', 'B4'],
-            'lon': [15.9833, 16.3514],
-            'lat': [55.2500, 55.5707]},
-        'SAMBA_03': {
-            'names': ['G8', 'G2', 'G4'],
-            'lon': [19.9293, 19.9617, 19.7847],
-            'lat': [58.1474, 58.2551, 58.5162]},
-        'SAMBA_04': {
-            'names': ['L1', 'L2', 'L3'],
-            'lon': [18.9567, 18.8812, 18.2013],
-             'lat': [58.1620, 58.4443, 58.5913]},
-        'SAMBA_05': {
-            'names': ['A1', 'A2'],
-            'lon': [19.6948, 19.3669],
-            'lat': [60.0003, 60.1165]}}
-
     def find_if_on_transect(ds, buff_lim=1500, time_lim=40):
 
         st_area = find_area(ds)
-        print(st_area)
+        mission_WP = json.load(open('/home/chiara/mission_wp.json'))
         lineStringObj = LineString(list(zip(mission_WP[st_area]['lon'], mission_WP[st_area]['lat'])))
         df_tra = pd.DataFrame()
         df_tra['LineID'] = [101, ]
