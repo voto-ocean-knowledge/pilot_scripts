@@ -34,11 +34,11 @@ if __name__ == '__main__':
     sender = "/home/chiara/pilot_scripts/send_mail.sh"
     mission_WP = json.load(open('/home/chiara/pilot_scripts/mission_wp.json'))
     mails = open('/home/chiara/pilot_scripts/mail_list.txt').read().split(",") 
-    active_mission = []
+    
 
     # Enter every folder (each folder is a glider) in this directory and open the folder with the highest number aka latest mission available for that glider.
     # Once in the lastes mission check if the g-log folder exixts and if it does, then check if there data in the last 24h or not. If there is, then we consider that an active mission and we want to analyse it
-    
+    active_mission = []
     for gli in glob(f"{loc}*", recursive=True):
         gli_missions = glob(f"{gli}/*", recursive=True)
         max_mission = max(gli_missions)
