@@ -83,8 +83,6 @@ if __name__ == '__main__':
     # Define which transect based on average location
     def find_area(ds):
         area = []
-        print(ds.lon.mean())
-        print(ds.lat.mean())
         if ds.lon.mean() < 14:
             area = 'SAMBA_01'
         if ds.lat.mean() < 56:
@@ -126,7 +124,6 @@ if __name__ == '__main__':
     for i in tqdm.tqdm(range(len(active_mission))):
         act1 = load_cmd(active_mission[i])
         glid_off, dist_tra = find_if_on_transect(act1, buff_lim=1500, time_lim=8)
-        print(dist_tra)
         if len(glid_off) != 0:
             tab.glider[i] = str(active_mission[i])[:-12][-9:]
             tab.cycles_off[i] = glid_off
