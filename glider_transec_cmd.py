@@ -17,8 +17,6 @@ import logging
 import os
 import tqdm
 
-dir = os.getcwd()
-
 _log = logging.getLogger(__name__)
 if __name__ == '__main__':
     logf = 'cmdconsole_processing.log'
@@ -30,9 +28,10 @@ if __name__ == '__main__':
     _log.warning("Retreiving command console data")
 
 
-    #Specify location of the command console data 
+    #Specify location of the command console data and other necessary files
     loc = '/mnt/samba/Other/glimpse-data/'
-    sender = "/home/chiara/send_mail.sh"
+    sender = "/home/chiara/pilot_scripts/send_mail.sh"
+    mission_WP = json.load(open('/home/chiara/pilot_scripts/mission_wp.json'))
     
     active_mission = []
 
@@ -100,32 +99,8 @@ if __name__ == '__main__':
             area = 'SAMBA_05'
         return area
 
-    mission_WP = {
-        'SAMBA_01': {
-            'names': ['K11', 'K6', 'K14', 'K13_7500', 'K11'],
-            'lon': [11.3301, 11.0436, 10.8630, 11.1833, 11.3301],
-            'lat': [57.8032, 58.1167, 58.1038, 57.7939, 57.8032]},
-        'SAMBA_02': {
-            'names': ['B2', 'B4'],
-            'lon': [15.9833, 16.3514],
-            'lat': [55.2500, 55.5707]},
-        'SAMBA_03': {
-            'names': ['G8', 'G2', 'G4'],
-            'lon': [19.9293, 19.9617, 19.7847],
-            'lat': [58.1474, 58.2551, 58.5162]},
-        'SAMBA_04': {
-            'names': ['L1', 'L2', 'L3'],
-            'lon': [18.9567, 18.8812, 18.2013],
-             'lat': [58.1620, 58.4443, 58.5913]},
-        'SAMBA_05': {
-            'names': ['A1', 'A2'],
-            'lon': [19.6948, 19.3669],
-            'lat': [60.0003, 60.1165]}}
-
     def find_if_on_transect(ds, buff_lim=1500, time_lim=40):
-
         st_area = find_area(ds)
-        print(st_area)
         lineStringObj = LineString(list(zip(mission_WP[st_area]['lon'], mission_WP[st_area]['lat'])))
         df_tra = pd.DataFrame()
         df_tra['LineID'] = [101, ]
@@ -150,7 +125,6 @@ if __name__ == '__main__':
     tab.glider = range(0,len(active_mission))
 
     for i in tqdm.tqdm(range(len(active_mission))):
-        print(active_mission[i])
         act1 = load_cmd(active_mission[i])
         glid_off, dist_tra = find_if_on_transect(act1, buff_lim=1500, time_lim=8)
         print(dist_tra)
@@ -160,7 +134,6 @@ if __name__ == '__main__':
             tab.area[i] = find_area(act1)
             tab.distance[i] = np.round(dist_tra.where(dist_tra != 0).dropna(), 0)
     off_glider = tab.dropna()
-    tab.to_csv(f'{dir}/offglider_table.csv')
 
     final_text = []
     if len(off_glider) !=0:
@@ -171,7 +144,7 @@ if __name__ == '__main__':
 
     text = '\n'.join(final_text)
 
-    sender = "/home/chiara/send_mail.sh"
+
     if len(final_text) != 0:
         subprocess.check_call(['/usr/bin/bash', sender, text, "Glider-transect-alert",
                                "chiara.monforte@voiceoftheocean.org"])
