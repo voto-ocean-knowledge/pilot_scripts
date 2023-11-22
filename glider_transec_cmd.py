@@ -4,6 +4,7 @@
 # # Starting glider data analysis
 from io import StringIO
 from shapely.geometry import LineString
+from shapely.geometry import Polygon
 from glob import glob
 from matplotlib import style
 import pandas as pd
@@ -85,19 +86,23 @@ if __name__ == '__main__':
     # Define which transect it is based on average lat/lon
     # ds is the pandas dataframe with timestamp, latitude, longitude and the cycle number
     def find_area(ds):
-        area = []
-        if ds.lon.mean() < 14:
-            area = 'SAMBA_01'
-        if ds.lat.mean() < 56:
-            area = 'SAMBA_02'
-        if ds.lat.mean() > 56 and ds.lat.mean() < 60:
-            if ds.lon.mean() > 19:
-                area = 'SAMBA_03'
-            if ds.lon.mean() > 16 and ds.lon.mean() < 19:
-                area = 'SAMBA_04'
-        if ds.lat.mean() > 60:
-            area = 'SAMBA_05'
-        return area
+    for key in mission_WP.keys():
+        polygon_geom = LineString(list(zip(mission_WP[key]['lon'], mission_WP[key]['lat'])))
+        df_polytra = pd.DataFrame()
+        poly_tran = gpd.GeoDataFrame(df_polytra, crs='epsg:4326', geometry=[polygon_geom,]).to_crs('epsg:3006').buffer(5000)
+        buffer_poly= gpd.GeoDataFrame(geometry=poly_tran).to_crs('epsg:3006')
+
+        geo_glider = gpd.GeoDataFrame(ds, geometry=gpd.points_from_xy(ds.lon, ds.lat))
+        geo_glider = geo_glider.set_crs(epsg=4326).to_crs('epsg:3006')
+
+        polygons_contains = gpd.sjoin(buffer_poly, geo_glider, predicate='contains')
+
+        if len(polygons_contains) !=0:
+            area = key
+    if len(area) == 0:
+        _log.warning("Could not find a corresponding transect")
+        subprocess.check_call(['/usr/bin/bash', sender, text, "Glider-transect-alert", m[0]])
+    return area
 
     # ds is the pandas dataframe with timestamp, latitude, longitude and the cycle number
     def find_if_on_transect(ds, buff_lim=1500, time_lim=40):
