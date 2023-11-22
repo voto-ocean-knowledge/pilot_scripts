@@ -32,7 +32,7 @@ if __name__ == '__main__':
     loc = '/mnt/samba/Other/glimpse-data/'
     sender = "/home/chiara/pilot_scripts/send_mail.sh"
     mission_WP = json.load(open('/home/chiara/pilot_scripts/mission_wp.json'))
-    
+    mails = open('/home/chiara/pilot_scripts/mail_list.txt').read().split(",") 
     active_mission = []
 
     # Enter every folder (each folder is a glider) in this directory and open the folder with the highest number aka latest mission available for that glider.
@@ -63,10 +63,8 @@ if __name__ == '__main__':
         # create lat lon columns in decimal degrees
         cmd['lat'] = cmd.where(cmd[0] == '$SEAMRS').dropna(how='all')[8].str.rsplit('*').str[0]
         cmd['lon'] = cmd.where(cmd[0] == '$SEAMRS').dropna(how='all')[9].str.rsplit('*').str[0]
-        cmd['lat'] = cmd.where(cmd[0] == '$SEAMRS').dropna(how='all').lat.replace('', np.nan).dropna(how='all').astype(
-            float)
-        cmd['lon'] = cmd.where(cmd[0] == '$SEAMRS').dropna(how='all').lon.replace('', np.nan).dropna(how='all').astype(
-            float)
+        cmd['lat'] = cmd.where(cmd[0] == '$SEAMRS').dropna(how='all').lat.replace('', np.nan).dropna(how='all').astype(float)
+        cmd['lon'] = cmd.where(cmd[0] == '$SEAMRS').dropna(how='all').lon.replace('', np.nan).dropna(how='all').astype(float)
 
         def dd_coord(x):
             degrees = x // 100
@@ -144,13 +142,9 @@ if __name__ == '__main__':
 
     text = '\n'.join(final_text)
 
-
     if len(final_text) != 0:
-        subprocess.check_call(['/usr/bin/bash', sender, text, "Glider-transect-alert",
-                               "chiara.monforte@voiceoftheocean.org"])
-
-        subprocess.check_call(['/usr/bin/bash', sender, text, "Glider-transect-alert",
-                               "alarms-aaaak6sn7vydeww34wcbshfqdq@voice-of-the-ocean.slack.com"])
+        for m in mails:
+            subprocess.check_call(['/usr/bin/bash', sender, text, "Glider-transect-alert", m])
         
     _log.warning("End analysis - email sent if needed")
 
