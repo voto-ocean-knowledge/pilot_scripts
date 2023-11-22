@@ -30,22 +30,28 @@ if __name__ == '__main__':
     _log.warning("Retreiving command console data")
 
 
+    #Specify location of the command console data 
     loc = '/mnt/samba/Other/glimpse-data/'
-
+    sender = "/home/chiara/send_mail.sh"
+    
     active_mission = []
 
+    # Enter every folder (each folder is a glider) in this directory and open the folder with the highest number aka latest mission available for that glider.
+    # Once in the lastes mission check if the g-log folder exixts and if it does, then check if there data in the last 24h or not. If there is, then we consider that an active mission and we want to analyse it
+    
     for gli in glob(f"{loc}*", recursive=True):
         gli_missions = glob(f"{gli}/*", recursive=True)
         max_mission = max(gli_missions)
         log_data = list(pathlib.Path(f'{max_mission}/G-Logs').glob('*.com.raw.log'))
-        if len(log_data) == 0:  # In case the g log does not exist (rsync from Alseamar was rather recent)
+        if len(log_data) == 0:  # In case the g-log does not exist (rsync from Alseamar was rather recent)
             continue
         cmd_data = pd.read_csv(log_data[0], sep=";", header=0)
         cmd_data.DATE_TIME = pd.to_datetime(cmd_data.DATE_TIME, dayfirst=True, yearfirst=False, )
         latest = cmd_data.where(cmd_data.DATE_TIME > datetime.datetime.now() - datetime.timedelta(hours=24)).dropna()
         if len(latest) > 0:
             active_mission.append(log_data[0])
-
+            
+    # For each active mission we create a pandas dataframe 
     def load_cmd(path):
         df = pd.read_csv(path, sep=";", header=0)
         a = df['LOG_MSG'].str.split(',', expand=True)
@@ -76,9 +82,7 @@ if __name__ == '__main__':
 
         return df_glider
 
-
     # Define which transect based on average location
-
     def find_area(ds):
         area = []
         print(ds.lon.mean())
@@ -95,7 +99,6 @@ if __name__ == '__main__':
         if ds.lat.mean() > 60:
             area = 'SAMBA_05'
         return area
-
 
     mission_WP = {
         'SAMBA_01': {
@@ -118,7 +121,6 @@ if __name__ == '__main__':
             'names': ['A1', 'A2'],
             'lon': [19.6948, 19.3669],
             'lat': [60.0003, 60.1165]}}
-
 
     def find_if_on_transect(ds, buff_lim=1500, time_lim=40):
 
