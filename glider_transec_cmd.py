@@ -138,7 +138,7 @@ if __name__ == '__main__':
             message = f"The glider SEA{row.glider[3:6]}_M{row.glider[7:10]} is off the transect at dives {row.cycles_off} at a distance {str(row.distance.values.flatten())} m "
             final_text.append(message)
 
-    text = '\n'.join(final_text)
+    text = '\n\n'.join(final_text)
 
     if len(final_text) != 0:
         for m in mails:
