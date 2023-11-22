@@ -35,9 +35,9 @@ if __name__ == '__main__':
     mission_WP = json.load(open('/home/chiara/pilot_scripts/mission_wp.json'))
     mails = open('/home/chiara/pilot_scripts/mail_list.txt').read().split(",") 
     
-
     # Enter every folder (each folder is a glider) in this directory and open the folder with the highest number aka latest mission available for that glider.
     # Once in the lastes mission check if the g-log folder exixts and if it does, then check if there data in the last 24h or not. If there is, then we consider that an active mission and we want to analyse it
+    
     active_mission = []
     for gli in glob(f"{loc}*", recursive=True):
         gli_missions = glob(f"{gli}/*", recursive=True)
@@ -51,7 +51,8 @@ if __name__ == '__main__':
         if len(latest) > 0:
             active_mission.append(log_data[0])
             
-    # For each active mission we create a pandas dataframe 
+    # For each active mission we create a pandas dataframe with timestamp, latitude, longitude and the cycle number
+    # The path has to direct to the command console data 
     def load_cmd(path):
         df = pd.read_csv(path, sep=";", header=0)
         a = df['LOG_MSG'].str.split(',', expand=True)
@@ -67,6 +68,7 @@ if __name__ == '__main__':
         cmd['lat'] = cmd.where(cmd[0] == '$SEAMRS').dropna(how='all').lat.replace('', np.nan).dropna(how='all').astype(float)
         cmd['lon'] = cmd.where(cmd[0] == '$SEAMRS').dropna(how='all').lon.replace('', np.nan).dropna(how='all').astype(float)
 
+        #The SEAMRS nmea sentence prints the coordinates in ddmm.mmm so we what to transform them into dd.dddd
         def dd_coord(x):
             degrees = x // 100
             minutes = x - 100 * degrees
@@ -80,7 +82,8 @@ if __name__ == '__main__':
 
         return df_glider
 
-    # Define which transect based on average location
+    # Define which transect it is based on average lat/lon
+    # ds is the pandas dataframe with timestamp, latitude, longitude and the cycle number
     def find_area(ds):
         area = []
         if ds.lon.mean() < 14:
@@ -96,12 +99,13 @@ if __name__ == '__main__':
             area = 'SAMBA_05'
         return area
 
+    # ds is the pandas dataframe with timestamp, latitude, longitude and the cycle number
     def find_if_on_transect(ds, buff_lim=1500, time_lim=40):
         st_area = find_area(ds)
         lineStringObj = LineString(list(zip(mission_WP[st_area]['lon'], mission_WP[st_area]['lat'])))
         df_tra = pd.DataFrame()
         df_tra['LineID'] = [101, ]
-        line_tran = gpd.GeoDataFrame(df_tra, crs='epsg:4326', geometry=[lineStringObj, ]).to_crs('epsg:3006').buffer(buff_lim)
+        line_tran = gpd.GeoDataFrame(df_tra, crs='epsg:4326', geometry=[lineStringObj, ]).to_crs('epsg:3006').buffer(buff_lim) # this coordinate system is suitable for Sweden
         buffer_df = gpd.GeoDataFrame(geometry=line_tran).to_crs('epsg:3006')
 
         sub_glider = ds.where(ds.time > datetime.datetime.now() - datetime.timedelta(hours=time_lim)).dropna()
@@ -118,6 +122,7 @@ if __name__ == '__main__':
         return cycles_off, distance
 
     _log.warning("Analysing command console data")
+    
     tab = pd.DataFrame(columns = ['glider','cycles_off', 'area', 'distance'])
     tab.glider = range(0,len(active_mission))
 
