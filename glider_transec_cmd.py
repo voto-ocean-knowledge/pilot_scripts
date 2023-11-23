@@ -1,7 +1,6 @@
 #!/usr/bin/env python
 # coding: utf-8
 
-# # Starting glider data analysis
 from io import StringIO
 from shapely.geometry import LineString
 from shapely.geometry import Polygon
