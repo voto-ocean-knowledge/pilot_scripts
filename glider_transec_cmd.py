@@ -123,22 +123,22 @@ if __name__ == '__main__':
         all_cycle = sub_glider.cycle.unique()
         distance = geo_glider.geometry.apply(lambda g: buffer_df.distance(g))
         cycles_off = all_cycle[np.where(np.isin(all_cycle, cycle_on) == False)]
-        return cycles_off, distance
+        return cycles_off, (distance.where(distance != 0).dropna()).astype(int)
 
     _log.warning("Analysing command console data")
     
-    tab = pd.DataFrame(columns = ['glider','cycles_off', 'area', 'distance'])
+    tab = pd.DataFrame(columns = ['glider','cycles_off', 'area', 'distance (m)'])
     tab.glider = range(0,len(active_mission))
 
     for i in tqdm.tqdm(range(len(active_mission))):
         act1 = load_cmd(active_mission[i])
         glid_off, dist_tra = find_if_on_transect(act1, buff_lim=1500, time_lim=8)
         if len(glid_off) != 0:
-            tab.glider[i] = str(active_mission[i])[:-12][-9:]
-            tab.cycles_off[i] = glid_off
-            tab.area[i] = find_area(act1)
-            tab.distance[i] = np.round(dist_tra.where(dist_tra != 0).dropna(), 0)
-    off_glider = tab.dropna()
+            tab.loc[i, 'glider'] = str(active_mission[i])[:-12][-9:]
+            tab.at[i, 'cycles_off'] = glid_off
+            tab.loc[i, 'area'] = find_area(act1)
+            tab.at[i, 'distance (m)'] = dist_tra.values.flatten()
+        off_glider = tab.dropna()
 
     final_text = []
     if len(off_glider) !=0:
