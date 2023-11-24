@@ -123,23 +123,31 @@ if __name__ == '__main__':
         all_cycle = sub_glider.cycle.unique()
         distance = geo_glider.geometry.apply(lambda g: buffer_df.distance(g))
         cycles_off = all_cycle[np.where(np.isin(all_cycle, cycle_on) == False)]
-        return cycles_off, (distance.where(distance != 0).dropna()).astype(int)
+        last_c= max(all_cycle)
+        return cycles_off, (distance.where(distance != 0).dropna()).astype(int), last_c
 
     _log.warning("Analysing command console data")
     
-    tab = pd.DataFrame(columns = ['glider','cycles_off', 'area', 'distance (m)'])
+    tab = pd.DataFrame(columns = ['glider','cycles_off', 'area', 'distance (m)', 'latest_cycle'])
     tab.glider = range(0,len(active_mission))
 
     for i in tqdm.tqdm(range(len(active_mission))):
         act1 = load_cmd(active_mission[i])
-        glid_off, dist_tra = find_if_on_transect(act1, buff_lim=2000, time_lim=5)
+        glid_off, dist_tra, lastC = find_if_on_transect(act1, buff_lim=2000, time_lim=5)
         if len(glid_off) != 0:
             tab.loc[i, 'glider'] = str(active_mission[i])[:-12][-9:]
             tab.at[i, 'cycles_off'] = glid_off
             tab.loc[i, 'area'] = find_area(act1)
+            tab.loc[i, 'latest_cycle'] = lastC
             tab.at[i, 'distance (m)'] = dist_tra.values.flatten()
-        off_glider = tab.dropna()
-
+    
+    #Remove glider if the lastest cycle is not in the column cycles off, ie glider is back on trasnect and there is no need to alert
+    for i, row in tab.iterrows():
+    if row.latest_cycle > max(row.cycles_off):
+        print(row)
+        tab.glider[i] = np.nan
+    off_glider = tab.dropna()
+    
     final_text = []
     if len(off_glider) !=0:
 
