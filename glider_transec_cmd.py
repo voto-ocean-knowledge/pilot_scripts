@@ -143,9 +143,9 @@ if __name__ == '__main__':
     
     #Remove glider if the lastest cycle is not in the column cycles off, ie glider is back on trasnect and there is no need to alert
     for i, row in tab.iterrows():
-    if row.latest_cycle > max(row.cycles_off):
-        print(row)
-        tab.glider[i] = np.nan
+        if row.latest_cycle > max(row.cycles_off):
+            print(row)
+            tab.glider[i] = np.nan
     off_glider = tab.dropna()
     
     final_text = []
