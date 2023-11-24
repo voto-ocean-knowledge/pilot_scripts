@@ -132,7 +132,7 @@ if __name__ == '__main__':
 
     for i in tqdm.tqdm(range(len(active_mission))):
         act1 = load_cmd(active_mission[i])
-        glid_off, dist_tra = find_if_on_transect(act1, buff_lim=1500, time_lim=8)
+        glid_off, dist_tra = find_if_on_transect(act1, buff_lim=2000, time_lim=5)
         if len(glid_off) != 0:
             tab.loc[i, 'glider'] = str(active_mission[i])[:-12][-9:]
             tab.at[i, 'cycles_off'] = glid_off
