@@ -125,8 +125,12 @@ if __name__ == '__main__':
             continue
         distance = geo_glider.geometry.apply(lambda g: buffer_df.distance(g))
         cycles_off = all_cycle[np.where(np.isin(all_cycle, cycle_on) == False)]
-        last_c= max(all_cycle)
-        return cycles_off, (distance.where(distance != 0).dropna()).astype(int), last_c
+        if len(all_cycle) == 0:
+            last_c= np.nan
+        else:
+            last_c= max(all_cycle)
+    
+    return cycles_off, (distance.where(distance != 0).dropna()).astype(int), last_c
 
     _log.warning("Analysing command console data")
     
