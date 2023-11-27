@@ -148,8 +148,8 @@ if __name__ == '__main__':
     tab_glider = tab.dropna()
     if len (tab_glider) != 0:
         for i, row in tab_glider.iterrows():
+            print(row)
             if row.latest_cycle > max(row.cycles_off):
-                print(row)
                 tab_glider.glider[i] = np.nan
     off_glider = tab_glider.dropna()
     
