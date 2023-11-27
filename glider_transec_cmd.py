@@ -124,6 +124,7 @@ if __name__ == '__main__':
         if len(all_cycle) == 0:
             _log.warning("Could not find valid data in the command console - glider not connetcing")
             subprocess.check_call(['/usr/bin/bash', sender, text, "Glider-transect-alert", m[0]])
+        else: 
             continue 
         distance = geo_glider.geometry.apply(lambda g: buffer_df.distance(g))
         cycles_off = all_cycle[np.where(np.isin(all_cycle, cycle_on) == False)]
