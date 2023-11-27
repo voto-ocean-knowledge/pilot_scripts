@@ -127,8 +127,7 @@ if __name__ == '__main__':
             last_c= np.nan
         else:
             last_c= max(all_cycle)
-    
-    return cycles_off, (distance.where(distance != 0).dropna()).astype(int), last_c
+        return cycles_off, (distance.where(distance != 0).dropna()).astype(int), last_c
 
     _log.warning("Analysing command console data")
     
