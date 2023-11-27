@@ -142,11 +142,12 @@ if __name__ == '__main__':
             tab.at[i, 'distance (m)'] = dist_tra.values.flatten()
     
     #Remove glider if the lastest cycle is not in the column cycles off, ie glider is back on trasnect and there is no need to alert
-    for i, row in tab.iterrows():
+    tab_glider = tab.dropna()
+    for i, row in tab_glider.iterrows():
         if row.latest_cycle > max(row.cycles_off):
             print(row)
-            tab.glider[i] = np.nan
-    off_glider = tab.dropna()
+            tab_glider.glider[i] = np.nan
+    off_glider = tab_glider.dropna()
     
     final_text = []
     if len(off_glider) !=0:
