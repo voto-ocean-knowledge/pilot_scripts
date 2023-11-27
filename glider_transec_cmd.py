@@ -121,6 +121,10 @@ if __name__ == '__main__':
 
         cycle_on = polygons_contains.index_right
         all_cycle = sub_glider.cycle.unique()
+        if len(all_cycle) == 0:
+            _log.warning("Could not find valid data in the command console - glider not connetcing")
+            subprocess.check_call(['/usr/bin/bash', sender, text, "Glider-transect-alert", m[0]])
+            continue 
         distance = geo_glider.geometry.apply(lambda g: buffer_df.distance(g))
         cycles_off = all_cycle[np.where(np.isin(all_cycle, cycle_on) == False)]
         last_c= max(all_cycle)
@@ -133,7 +137,7 @@ if __name__ == '__main__':
 
     for i in tqdm.tqdm(range(len(active_mission))):
         act1 = load_cmd(active_mission[i])
-        glid_off, dist_tra, lastC = find_if_on_transect(act1, buff_lim=2000, time_lim=5)
+        glid_off, dist_tra, lastC = find_if_on_transect(act1, buff_lim=2000, time_lim=8)
         if len(glid_off) != 0:
             tab.loc[i, 'glider'] = str(active_mission[i])[:-12][-9:]
             tab.at[i, 'cycles_off'] = glid_off
