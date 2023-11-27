@@ -121,8 +121,6 @@ if __name__ == '__main__':
 
         cycle_on = polygons_contains.index_right
         all_cycle = sub_glider.cycle.unique()
-        if len(all_cycle) == 0:  # In case it could not find valid data in the command console - glider not connetcing 
-            continue
         distance = geo_glider.geometry.apply(lambda g: buffer_df.distance(g))
         cycles_off = all_cycle[np.where(np.isin(all_cycle, cycle_on) == False)]
         if len(all_cycle) == 0:
