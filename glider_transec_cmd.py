@@ -168,7 +168,7 @@ if __name__ == '__main__':
     if len(off_glider) !=0:
 
         for i, row in off_glider.iterrows():
-            message = f"The glider SEA{row.glider[3:6]}_M{row.glider[7:10]} is off the transect at dives {row.cycles_off} at a distance {str(row.distance.values.flatten())} m "
+            message = f"The glider SEA{row.glider[3:6]}_M{row.glider[7:10]} is off the transect at dives {row.cycles_off} at a distance {str(row['distance (m)'].values.flatten())} m "
             final_text.append(message)
 
     text = '\n\n'.join(final_text)
