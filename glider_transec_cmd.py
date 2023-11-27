@@ -152,18 +152,6 @@ if __name__ == '__main__':
         if row.latest_cycle > max(row.cycles_off):
             row.glider = np.nan
     off_glider = tab_glider.dropna()
-    '''
-    tab_glider = tab.dropna()
-    if len (tab_glider) == 1:
-        if tab_glider.latest_cycle > max(tab_glider.cycles_off):
-                tab_glider.glider = np.nan
-    if len (tab_glider) > 1:
-        for i, row in tab_glider.iterrows():
-            print(row)
-            if row.latest_cycle > max(row.cycles_off):
-                tab_glider.glider[i] = np.nan
-    off_glider = tab_glider.dropna()
-    '''
     final_text = []
     if len(off_glider) !=0:
 
