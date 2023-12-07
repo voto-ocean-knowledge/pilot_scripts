@@ -45,7 +45,8 @@ if __name__ == '__main__':
         log_data = list(pathlib.Path(f'{max_mission}/G-Logs').glob('*.com.raw.log'))
         if len(log_data) == 0:  # In case the g-log does not exist (rsync from Alseamar was rather recent)
             continue
-        cmd_data = pd.read_csv(log_data[0], sep=";", header=0)
+        print(log_data[0])
+        cmd_data = pd.read_csv(log_data[0], sep=";",usecols=range(0, 6), header=0)
         cmd_data.DATE_TIME = pd.to_datetime(cmd_data.DATE_TIME, dayfirst=True, yearfirst=False, )
         latest = cmd_data.where(cmd_data.DATE_TIME > datetime.datetime.now() - datetime.timedelta(hours=24)).dropna()
         if len(latest) > 0:
