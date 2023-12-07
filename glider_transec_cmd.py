@@ -55,7 +55,7 @@ if __name__ == '__main__':
     # For each active mission we create a pandas dataframe with timestamp, latitude, longitude and the cycle number
     # The path has to direct to the command console data 
     def load_cmd(path):
-        df = pd.read_csv(path, sep=";", header=0)
+        df = pd.read_csv(path, sep=";",usecols=range(0, 6), header=0)
         a = df['LOG_MSG'].str.split(',', expand=True)
         cmd = pd.concat([df, a], axis=1)
 
