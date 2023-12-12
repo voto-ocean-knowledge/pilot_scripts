@@ -154,18 +154,20 @@ if __name__ == '__main__':
             row.glider = np.nan
     off_glider = tab_glider.dropna()
     final_text = []
+    print(off_glider)
+    print(len(off_glider))
     if len(off_glider) !=0:
 
         for i, row in off_glider.iterrows():
             message = f"The glider SEA{row.glider[3:6]}_M{row.glider[7:10]} is off the transect at dives {row.cycles_off} at a distance {str(row['distance (m)'])} m "
             final_text.append(message)
 
-    text = '\n\n'.join(final_text)
+    #text = '\n\n'.join(final_text)
 
-    if len(final_text) != 0:
-        for m in mails:
-            subprocess.check_call(['/usr/bin/bash', sender, text, "Glider-transect-alert", m])
+    #if len(final_text) != 0:
+        #for m in mails:
+            #subprocess.check_call(['/usr/bin/bash', sender, text, "Glider-transect-alert", m])
         
-    _log.warning("End analysis - email sent if needed")
+   # _log.warning("End analysis - email sent if needed")
 
 
