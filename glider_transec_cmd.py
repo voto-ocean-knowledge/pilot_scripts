@@ -148,27 +148,22 @@ if __name__ == '__main__':
     #Remove glider if the lastest cycle is not in the column cycles off, ie glider is back on trasnect and there is no need to alert
     tab_glider = tab.dropna()
     for i, row in tab_glider.iterrows():
-        print(row)
-        print(row.cycles_off)
         if row.latest_cycle > max(row.cycles_off):
-            print(f'current c off{row}')
             tab_glider.loc[i,'glider'] = np.nan
     off_glider = tab_glider.dropna()
     final_text = []
-    print(off_glider)
-    print(len(off_glider))
     if len(off_glider) !=0:
 
         for i, row in off_glider.iterrows():
             message = f"The glider SEA{row.glider[3:6]}_M{row.glider[7:10]} is off the transect at dives {row.cycles_off} at a distance {str(row['distance (m)'])} m "
             final_text.append(message)
 
-    #text = '\n\n'.join(final_text)
+    text = '\n\n'.join(final_text)
 
-    #if len(final_text) != 0:
-        #for m in mails:
-            #subprocess.check_call(['/usr/bin/bash', sender, text, "Glider-transect-alert", m])
+    if len(final_text) != 0:
+        for m in mails:
+            subprocess.check_call(['/usr/bin/bash', sender, text, "Glider-transect-alert", m])
         
-   # _log.warning("End analysis - email sent if needed")
+    _log.warning("End analysis - email sent if needed")
 
 
