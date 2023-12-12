@@ -151,6 +151,7 @@ if __name__ == '__main__':
         print(row)
         print(row.cycles_off)
         if row.latest_cycle > max(row.cycles_off):
+            print(f'current c off{row}')
             row.glider = np.nan
     off_glider = tab_glider.dropna()
     final_text = []
