@@ -159,8 +159,8 @@ if __name__ == '__main__':
             final_text.append(message)
 
     text = '\n\n'.join(final_text)
-    else:
-        print('Hello')
+
+    print('Hello')
 
     #if len(final_text) != 0:
         #for m in mails:
