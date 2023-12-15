@@ -153,7 +153,6 @@ if __name__ == '__main__':
             print(row)
             tab_glider.loc[i,'glider'] = np.nan
     off_glider = tab_glider.dropna()
-    print(tab_glider)
     final_text = []
     if len(off_glider) !=0:
 
@@ -162,7 +161,7 @@ if __name__ == '__main__':
             final_text.append(message)
 
     text = '\n\n'.join(final_text)
-
+    print(text)
     #if len(final_text) != 0:
         #for m in mails:
             #subprocess.check_call(['/usr/bin/bash', sender, text, "Glider-transect-alert", m])
