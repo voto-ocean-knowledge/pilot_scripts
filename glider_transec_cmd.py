@@ -149,7 +149,7 @@ if __name__ == '__main__':
     tab_glider = tab.dropna()
     for i, row in tab_glider.iterrows():
         print(row.latest_cycle)
-        if row.latest_cycle > max(row.cycles_off):
+        if row.latest_cycle > int(max(row.cycles_off)):
             tab_glider.loc[i,'glider'] = np.nan
     off_glider = tab_glider.dropna()
     final_text = []
