@@ -162,9 +162,9 @@ if __name__ == '__main__':
 
     print('Hello')
 
-    #if len(final_text) != 0:
-        #for m in mails:
-            #subprocess.check_call(['/usr/bin/bash', sender, text, "Glider-transect-alert", m])
+    if len(final_text) != 0:
+        for m in mails:
+            subprocess.check_call(['/usr/bin/bash', sender, text, "Glider-transect-alert", m])
         
     _log.warning("End analysis - email sent if needed")
 
