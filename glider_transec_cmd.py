@@ -128,7 +128,6 @@ if __name__ == '__main__':
             last_c= np.nan
         else:
             last_c= all_cycle[-1]
-        print(last_c)
         return cycles_off, (distance.where(distance != 0).dropna()).astype(int), last_c
 
     _log.warning("Analysing command console data")
@@ -151,6 +150,7 @@ if __name__ == '__main__':
     for i, row in tab_glider.iterrows():
         if row.latest_cycle > max(row.cycles_off):
             print(row)
+            print(row.latest_cycle)
             tab_glider.loc[i,'glider'] = np.nan
     off_glider = tab_glider.dropna()
     final_text = []
