@@ -159,8 +159,9 @@ if __name__ == '__main__':
             final_text.append(message)
 
     text = '\n\n'.join(final_text)
-    print('Hello')
-    print(text)
+    else:
+        print('Hello')
+
     #if len(final_text) != 0:
         #for m in mails:
             #subprocess.check_call(['/usr/bin/bash', sender, text, "Glider-transect-alert", m])
