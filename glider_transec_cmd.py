@@ -122,13 +122,12 @@ if __name__ == '__main__':
 
         cycle_on = polygons_contains.index_right
         all_cycle = sub_glider.cycle.unique()
-        print(all_cycle)
         distance = geo_glider.geometry.apply(lambda g: buffer_df.distance(g))
         cycles_off = all_cycle[np.where(np.isin(all_cycle, cycle_on) == False)]
         if len(all_cycle) == 0:
             last_c= np.nan
         else:
-            last_c= max(all_cycle)
+            last_c= all_cycle[-1]
         print(last_c)
         return cycles_off, (distance.where(distance != 0).dropna()).astype(int), last_c
 
