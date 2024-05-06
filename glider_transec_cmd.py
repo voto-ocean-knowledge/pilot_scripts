@@ -69,7 +69,7 @@ def find_if_on_transect(ds, buff_lim=1500, time_lim=40):
 # For each active mission we create a pandas dataframe with timestamp, latitude, longitude and the cycle number
 # The path has to direct to the command console data
 def load_cmd(path):
-    df = pd.read_csv(path, sep=";", usecols=range(0, 6), header=0)
+    df = pd.read_csv(path, sep=";", usecols=range(0, 6), header=0, encoding_errors='ignore')
     a = df['LOG_MSG'].str.split(',', expand=True)
     cmd = pd.concat([df, a], axis=1)
 
@@ -107,7 +107,7 @@ if __name__ == '__main__':
                         format='%(asctime)s %(levelname)-8s %(message)s',
                         level=logging.INFO,
                         datefmt='%Y-%m-%d %H:%M:%S')
-    _log.info("Retreiving command console data")
+    _log.info("Retrieving command console data")
 
 
     #Specify location of the command console data and other necessary files
@@ -127,6 +127,7 @@ if __name__ == '__main__':
     
     active_mission = []
     for gli in glob(f"{loc}*", recursive=True):
+        _log.info(f"Reading data from {gli}")
         glider_num = gli.split('/')[-1]
         if glider_num in glider_last_alarm.keys():
             if glider_last_alarm[glider_num][0] > datetime.datetime.now() - datetime.timedelta(hours=24):
@@ -136,7 +137,7 @@ if __name__ == '__main__':
         if not comm_logs:
             continue
         log_data = max(comm_logs)
-        cmd_data = pd.read_csv(log_data, sep=";", usecols=range(0, 6), header=0)
+        cmd_data = pd.read_csv(log_data, sep=";", usecols=range(0, 6), header=0, encoding_errors='ignore')
         cmd_data.DATE_TIME = pd.to_datetime(cmd_data.DATE_TIME, dayfirst=True, yearfirst=False, )
         latest = cmd_data.where(cmd_data.DATE_TIME > datetime.datetime.now() - datetime.timedelta(hours=24)).dropna()
         if len(latest) > 0:
