@@ -112,7 +112,7 @@ if __name__ == '__main__':
 
     #Specify location of the command console data and other necessary files
     loc = '/data/data_raw/nrt/'
-    sender = "/home/pipeline/utility_scripts/send_mail.sh"
+    sender = "/home/pipeline/utility_scripts/send.sh"
     mission_WP = json.load(open('mission_wp.json'))
     mails = open('mail_list.txt').read().split(",")
     if Path("glider_last_alarm.csv").exists():
