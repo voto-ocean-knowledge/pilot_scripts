@@ -91,12 +91,11 @@ def load_cmd(path):
         minutes = x - 100 * degrees
         res = degrees + minutes / 60
         return res
-
     df_glider = pd.DataFrame({"time": cmd.dropna(subset=['lon', 'lat']).DATE_TIME,
-                              "lon": dd_coord(cmd['lon'].dropna().astype(float).values),
-                              "lat": dd_coord(cmd['lat'].dropna().astype(float).values),
-                              "cycle": cmd.dropna(subset=['lon', 'lat']).cycle})
-
+                              "lon": dd_coord(cmd.dropna(subset=['lon', 'lat'])['lon'].astype(float).values),
+                              "lat": dd_coord(cmd.dropna(subset=['lon', 'lat'])['lat'].astype(float).values),
+                              "cycle": cmd.dropna(subset=['lon', 'lat']).cycle.astype(int)
+                              })
     return df_glider
 
 
@@ -138,6 +137,9 @@ if __name__ == '__main__':
             continue
         log_data = max(comm_logs)
         cmd_data = pd.read_csv(log_data, sep=";", usecols=range(0, 6), header=0, encoding_errors='ignore')
+        if "DATE_TIME" not in cmd_data.columns:
+            _log.error(f"different columns in {log_data}. Skipping")
+            continue
         cmd_data.DATE_TIME = pd.to_datetime(cmd_data.DATE_TIME, dayfirst=True, yearfirst=False, )
         latest = cmd_data.where(cmd_data.DATE_TIME > datetime.datetime.now() - datetime.timedelta(hours=24)).dropna()
         if len(latest) > 0:
