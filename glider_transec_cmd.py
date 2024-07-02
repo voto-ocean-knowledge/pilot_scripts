@@ -19,6 +19,7 @@ _log = logging.getLogger(__name__)
 # Define which transect it is based on average lat/lon
 # ds is the pandas dataframe with timestamp, latitude, longitude and the cycle number
 def find_area(ds):
+    area = []
     for key in mission_WP.keys():
         polygon_geom = LineString(list(zip(mission_WP[key]['lon'], mission_WP[key]['lat'])))
         df_polytra = pd.DataFrame()
