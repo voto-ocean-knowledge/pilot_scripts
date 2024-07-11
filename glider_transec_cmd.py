@@ -15,6 +15,11 @@ sys.path.append(str(script_dir))
 os.chdir(script_dir)
 _log = logging.getLogger(__name__)
 
+# Specify location of the command console data and other necessary files
+loc = '/data/data_raw/nrt/'
+sender = "/home/pipeline/utility_scripts/send.sh"
+mission_WP = json.load(open('mission_wp.json'))
+
 
 # Define which transect it is based on average lat/lon
 # ds is the pandas dataframe with timestamp, latitude, longitude and the cycle number
@@ -35,8 +40,9 @@ def find_area(ds):
         if len(polygons_contains) != 0:
             area = key
     if len(area) == 0:
-        _log.warning("Could not find a corresponding transect")
-        subprocess.check_call(['/usr/bin/bash', sender, text, "Glider-transect-alert", m[0]])
+        text = "Could not find a corresponding transect"
+        _log.warning(text)
+        subprocess.check_call(['/usr/bin/bash', sender, text, "Glider-transect-alert", "callum.rollo@voiceoftheocean.org"])
     return area
 
 
@@ -100,7 +106,7 @@ def load_cmd(path):
     return df_glider
 
 
-if __name__ == '__main__':
+def main():
     logf = '/home/pipeline/log/glider_transect.log'
     logging.basicConfig(filename=logf,
                         filemode='a',
@@ -110,10 +116,6 @@ if __name__ == '__main__':
     _log.info("Retrieving command console data")
 
 
-    #Specify location of the command console data and other necessary files
-    loc = '/data/data_raw/nrt/'
-    sender = "/home/pipeline/utility_scripts/send.sh"
-    mission_WP = json.load(open('mission_wp.json'))
     mails = open('mail_list.txt').read().split(",")
     if Path("glider_last_alarm.csv").exists():
         cols = list(pd.read_csv("glider_last_alarm.csv").columns)
@@ -188,4 +190,10 @@ if __name__ == '__main__':
     glider_last_alarm.to_csv("glider_last_alarm.csv", index=False)
     _log.info("End analysis - email sent if needed")
 
+
+if __name__ == '__main__':
+    try:
+        main()
+    except:
+        subprocess.check_call(['/usr/bin/bash', sender, "transect alert failure", "Glider-transect-alert", "callum.rollo@voiceoftheocean.org"])
 
