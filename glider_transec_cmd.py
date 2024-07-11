@@ -15,6 +15,11 @@ sys.path.append(str(script_dir))
 os.chdir(script_dir)
 _log = logging.getLogger(__name__)
 
+# Specify location of the command console data and other necessary files
+loc = '/data/data_raw/nrt/'
+sender = "/home/pipeline/utility_scripts/send.sh"
+mission_WP = json.load(open('mission_wp.json'))
+
 
 # Define which transect it is based on average lat/lon
 # ds is the pandas dataframe with timestamp, latitude, longitude and the cycle number
@@ -35,8 +40,9 @@ def find_area(ds):
         if len(polygons_contains) != 0:
             area = key
     if len(area) == 0:
-        _log.warning("Could not find a corresponding transect")
-        subprocess.check_call(['/usr/bin/bash', sender, text, "Glider-transect-alert", m[0]])
+        text = "Could not find a corresponding transect"
+        _log.warning(text)
+        subprocess.check_call(['/usr/bin/bash', sender, text, "Glider-transect-alert", "callum.rollo@voiceoftheocean.org"])
     return area
 
 
@@ -100,7 +106,7 @@ def load_cmd(path):
     return df_glider
 
 
-if __name__ == '__main__':
+def main():
     logf = '/home/pipeline/log/glider_transect.log'
     logging.basicConfig(filename=logf,
                         filemode='a',
@@ -110,10 +116,6 @@ if __name__ == '__main__':
     _log.info("Retrieving command console data")
 
 
-    #Specify location of the command console data and other necessary files
-    loc = '/data/data_raw/nrt/'
-    sender = "/home/pipeline/utility_scripts/send.sh"
-    mission_WP = json.load(open('mission_wp.json'))
     mails = open('mail_list.txt').read().split(",")
     if Path("glider_last_alarm.csv").exists():
         cols = list(pd.read_csv("glider_last_alarm.csv").columns)
@@ -138,18 +140,18 @@ if __name__ == '__main__':
             continue
         log_data = max(comm_logs)
         cmd_data = pd.read_csv(log_data, sep=";", usecols=range(0, 6), header=0, encoding_errors='ignore')
-        if "DATE_TIME" not in cmd_data.columns:
-            _log.error(f"different columns in {log_data}. Skipping")
-            continue
-        cmd_data.DATE_TIME = pd.to_datetime(cmd_data.DATE_TIME, dayfirst=True, yearfirst=False, )
+        if "DATE_TIME" in cmd_data.columns:
+            cmd_data.DATE_TIME = pd.to_datetime(cmd_data.DATE_TIME, dayfirst=True, yearfirst=False, )
+        else:
+            cmd_data['DATE_TIME'] = pd.to_datetime(cmd_data['Date'] + "T" + cmd_data['Time'], dayfirst=True)
         latest = cmd_data.where(cmd_data.DATE_TIME > datetime.datetime.now() - datetime.timedelta(hours=24)).dropna()
         if len(latest) > 0:
             active_mission.append(log_data)
 
     _log.info("Analysing command console data")
     
-    tab = pd.DataFrame(columns = ['glider','cycles_off', 'area', 'distance (m)', 'latest_cycle'])
-    tab.glider = range(0,len(active_mission))
+    tab = pd.DataFrame(columns=['glider','cycles_off', 'area', 'distance (m)', 'latest_cycle'])
+    tab['glider'] = active_mission
 
     for i in range(len(active_mission)):
         act1 = load_cmd(active_mission[i])
@@ -175,6 +177,7 @@ if __name__ == '__main__':
     if len(off_glider) != 0:
         for i, row in off_glider.iterrows():
             message = f"The glider SEA{row.glider[3:6]}_M{row.glider[7:10]} is off the transect at dives {row.cycles_off} at a distance {str(row['distance (m)'])} m "
+            _log.info(message)
             glider_last_alarm.loc[0, f"SEA{row.glider[3:6]}"] = datetime.datetime.now()
             final_text.append(message)
 
@@ -187,4 +190,10 @@ if __name__ == '__main__':
     glider_last_alarm.to_csv("glider_last_alarm.csv", index=False)
     _log.info("End analysis - email sent if needed")
 
+
+if __name__ == '__main__':
+    try:
+        main()
+    except:
+        subprocess.check_call(['/usr/bin/bash', sender, "transect alert failure", "Glider-transect-alert", "callum.rollo@voiceoftheocean.org"])
 
