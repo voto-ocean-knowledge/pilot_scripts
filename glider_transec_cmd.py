@@ -138,18 +138,18 @@ if __name__ == '__main__':
             continue
         log_data = max(comm_logs)
         cmd_data = pd.read_csv(log_data, sep=";", usecols=range(0, 6), header=0, encoding_errors='ignore')
-        if "DATE_TIME" not in cmd_data.columns:
-            _log.error(f"different columns in {log_data}. Skipping")
-            continue
-        cmd_data.DATE_TIME = pd.to_datetime(cmd_data.DATE_TIME, dayfirst=True, yearfirst=False, )
+        if "DATE_TIME" in cmd_data.columns:
+            cmd_data.DATE_TIME = pd.to_datetime(cmd_data.DATE_TIME, dayfirst=True, yearfirst=False, )
+        else:
+            cmd_data['DATE_TIME'] = pd.to_datetime(cmd_data['Date'] + "T" + cmd_data['Time'], dayfirst=True)
         latest = cmd_data.where(cmd_data.DATE_TIME > datetime.datetime.now() - datetime.timedelta(hours=24)).dropna()
         if len(latest) > 0:
             active_mission.append(log_data)
 
     _log.info("Analysing command console data")
     
-    tab = pd.DataFrame(columns = ['glider','cycles_off', 'area', 'distance (m)', 'latest_cycle'])
-    tab.glider = range(0,len(active_mission))
+    tab = pd.DataFrame(columns=['glider','cycles_off', 'area', 'distance (m)', 'latest_cycle'])
+    tab['glider'] = active_mission
 
     for i in range(len(active_mission)):
         act1 = load_cmd(active_mission[i])
@@ -175,6 +175,7 @@ if __name__ == '__main__':
     if len(off_glider) != 0:
         for i, row in off_glider.iterrows():
             message = f"The glider SEA{row.glider[3:6]}_M{row.glider[7:10]} is off the transect at dives {row.cycles_off} at a distance {str(row['distance (m)'])} m "
+            _log.info(message)
             glider_last_alarm.loc[0, f"SEA{row.glider[3:6]}"] = datetime.datetime.now()
             final_text.append(message)
 
